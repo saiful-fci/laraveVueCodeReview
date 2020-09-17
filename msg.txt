@@ -1,0 +1,2 @@
+I did code for the first time in vueJs
+generally i did this type of work in jquery and ajax 

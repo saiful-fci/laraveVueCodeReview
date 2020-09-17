@@ -1,0 +1,182 @@
+<template>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Create New Student</div>
+
+                    <div class="card-body">
+                        <form>
+                          <div class="form-group">
+                            <label for="exampleInputEmail1">Name</label>
+                            <input type="email" v-model="name" class="form-control" id="name" aria-describedby="emailHelp" placeholder="Enter Your Name">
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputPassword1">ID</label>
+                            <input type="text" v-model="stdId" class="form-control" id="stdId" placeholder="Studetn ID">
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputPassword1">Department</label>
+                            <select name="department" v-model="department" id="department" class="form-control">
+                              <!-- <option selected disabled="">Please Select</option> -->
+                              <option value="CSE" selected="">CSE</option>
+                              <option value="EEE">EEE</option>
+                              <option value="ETE">ETE</option>
+                            </select>
+                          </div>
+                          <!-- <div class="form-group">
+                            <label for="exampleInputPassword1">Photo</label>
+                            <input type="file" v-model="photo" name="file" id="photo" class="form-control"/>
+                          </div> -->
+                          <button type="submit" @click.prevent="saveStudent" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">All Student</div>
+                    <div class="card-body">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">#SL</th>
+                            <th scope="col">Student Name</th>
+                            <th scope="col">Student ID</th>
+                            <th scope="col">Department</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(student,index) in students.data" :key="student.id">
+                            <th scope="row">{{index+1}}</th>
+                            <td>{{student.name}}</td>
+                            <td>{{student.stdId}}</td>
+                            <td>{{student.department}}</td>
+                            <td>
+                              <button type="button" class="btn btn-primary" @click="editStudent(student.id)" data-toggle="modal" data-target="#exampleModal">
+                                Edit
+                              </button>
+                              <button type="button" class="btn btn-primary btn btn-danger btn-xs" @click="delStudent(student.id)" data-toggle="" data-target="#">
+                                Delete
+                              </button>
+
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <pagination :data="students" @pagination-change-page="getResults"></pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="card-body">
+                        <form>
+                          <div class="form-group">
+                            <label for="exampleInputEmail1">Name</label>
+                            <input type="email" v-model="editName" class="form-control" id="name" aria-describedby="emailHelp" placeholder="Enter Your Name">
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputPassword1">ID</label>
+                            <input type="text" v-model="editStdId" class="form-control" id="stdId" placeholder="Studetn ID">
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputPassword1">Department</label>
+                            <select name="department" v-model="editDepartment" id="department" class="form-control">
+                              <!-- <option selected disabled="">Please Select</option> -->
+                              <option value="CSE" selected="">CSE</option>
+                              <option value="EEE">EEE</option>
+                              <option value="ETE">ETE</option>
+                            </select>
+                          </div>
+                          <button type="submit" data-dismiss="modal" @click.prevent="updateStudent" class="btn btn-primary btn btn-success">Update</button>
+                        </form>
+                    </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+</div>
+    </div>
+</template>
+
+<script>
+    export default {
+      data(){
+        return {
+          students:{},
+          name:'',
+          stdId:'',
+          department:'',
+          editName:'',
+          editStdId:'',
+          editDepartment:'',
+          id:'',
+        }
+      },
+      mounted() {
+          // console.log('Component mounted.')
+          this.getResults();
+      },
+      methods:{
+        saveStudent(){
+          axios.post('saveStudent',{
+            name:this.name,
+            stdId:this.stdId,
+            department:this.department,
+          })
+          .then(response=>{
+            this.name='';
+            this.stdId='';
+            this.department='';
+            this.getResults();
+          });
+        },
+        getResults(page = 1) {
+          axios.get('all_student?page=' + page)
+            .then(response => {
+              this.students = response.data;
+            });
+        },
+        editStudent(id){
+          axios.get('edit_student/' + id)
+            .then(response => {
+              this.id=response.data.id;
+              this.editName = response.data.name;
+              this.editStdId = response.data.stdId;
+              this.editDepartment = response.data.department;
+            });
+        },
+        updateStudent(){
+          axios.put('updateStudent',{
+          id:this.id,
+          name:this.editName,
+          stdId:this.editStdId,
+          department:this.editDepartment,
+          })
+          .then(response=>{
+            this.getResults();
+          });
+        },
+        delStudent(id){
+          axios.delete('delStudent/' + id)
+            .then(response =>{
+              this.getResults();
+            });
+
+        }
+      }
+    }
+</script>

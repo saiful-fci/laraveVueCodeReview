@@ -1,0 +1,14 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+
+Auth::routes();
+Route::get('/home', 'HomeController@index')->name('home');
+//========================Student Manage Route Start==================================
+Route::post('saveStudent', 'StudentController@saveStudent');
+Route::get('all_student', 'StudentController@all_student');
+Route::get('edit_student/{id}', 'StudentController@edit_student');
+Route::put('updateStudent', 'StudentController@updateStudent');
+Route::delete('delStudent/{id}', 'StudentController@delStudent');
+//========================Student Manage Route End==================================

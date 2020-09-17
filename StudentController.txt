@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Student;
+
+class StudentController extends Controller
+{
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function saveStudent(Request $request)
+    {
+        $Student=new Student;
+        $Student->name=$request->name;
+        $Student->stdId=$request->stdId;
+        $Student->department=$request->department;
+        $Student->save();
+        return response("ok");
+    }
+    public function all_student(){
+        $students=Student::paginate(5);
+        return response()->json($students);
+    }
+    public function edit_student($id){
+        $student=Student::find($id);
+        return response()->json($student);
+    }
+    public function updateStudent(Request $request){
+        $student=Student::find(request()->id);
+        $student->name=request()->name;
+        $student->stdId=request()->stdId;
+        $student->department=request()->department;
+        $student->update();
+
+    }
+    public function delStudent($id){
+        $result=Student::find($id)->delete();
+        return response()->json($result);
+    }
+}
